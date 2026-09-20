@@ -1,0 +1,400 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>곁 GYEOT · 1인가구 AI 생활동반자</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F3F6F4; --surface:#FFFFFF; --ink:#1C2826; --muted:#5D6B68; --line:#D6DFDB;
+  --celadon:#5E8F80; --celadon-soft:#E3EEEA; --lamp:#F2B84B; --lamp-soft:#FDF3DC;
+  --alert:#C8553D; --alert-soft:#FBE7E2; --deep:#23413A;
+  --serif:"Gowun Batang","Noto Serif KR",serif;
+  --sans:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --paper:#121A18; --surface:#1B2623; --ink:#E7EFEC; --muted:#9DB0AB; --line:#2E3D39;
+  --celadon:#7FB3A3; --celadon-soft:#21332E; --lamp:#F2B84B; --lamp-soft:#3A301A; --alert:#E07A62; --alert-soft:#3A2420; --deep:#A8D1C4;}}
+:root[data-theme="dark"]{--paper:#121A18; --surface:#1B2623; --ink:#E7EFEC; --muted:#9DB0AB; --line:#2E3D39;
+  --celadon:#7FB3A3; --celadon-soft:#21332E; --lamp:#F2B84B; --lamp-soft:#3A301A; --alert:#E07A62; --alert-soft:#3A2420; --deep:#A8D1C4;}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:17px;line-height:1.6}
+button,input,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--lamp);outline-offset:2px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:18px 28px;border-bottom:1px solid var(--line);background:var(--surface)}
+.brand{display:flex;align-items:baseline;gap:12px}
+.brand b{font-family:var(--serif);font-size:34px;line-height:1;color:var(--deep)}
+.brand span{color:var(--muted);font-size:15px}
+.mode{font-size:13px;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:4px 12px;white-space:nowrap}
+.mode.live{color:var(--celadon);border-color:var(--celadon)}
+.seg{display:none;gap:6px;padding:10px 16px;background:var(--surface);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
+.seg button{flex:1;border:1px solid var(--line);background:transparent;border-radius:10px;padding:8px 4px;font-size:15px}
+.seg button[aria-selected="true"]{background:var(--deep);color:var(--paper);border-color:var(--deep)}
+.wrap{display:grid;grid-template-columns:440px 1fr;gap:28px;max-width:1280px;margin:0 auto;padding:28px}
+/* phone */
+.phone{background:var(--surface);border:1px solid var(--line);border-radius:28px;overflow:hidden;display:flex;flex-direction:column;height:calc(100vh - 150px);min-height:640px;position:sticky;top:20px}
+.ph-head{padding:18px 20px 12px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}
+.ph-head h2{margin:0;font-size:18px;font-weight:600}
+.ph-head small{color:var(--muted);font-size:13px}
+.lampchip{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--muted)}
+.lampdot{width:14px;height:14px;border-radius:50%;background:var(--lamp);box-shadow:0 0 0 5px var(--lamp-soft)}
+.ph-body{flex:1;overflow-y:auto;padding:18px 18px 8px}
+.greet{font-family:var(--serif);font-size:24px;line-height:1.45;margin:4px 0 18px}
+.action{display:block;width:100%;text-align:left;border:1px solid var(--line);background:var(--surface);border-radius:16px;padding:16px 18px;margin-bottom:10px}
+.action strong{display:block;font-size:18px}
+.action span{color:var(--muted);font-size:15px}
+.action.primary{background:var(--deep);border-color:var(--deep);color:var(--paper)}
+.action.primary span{color:inherit;opacity:.8}
+.recs h3{font-size:15px;color:var(--muted);font-weight:500;margin:18px 0 8px}
+.rec{border-left:4px solid var(--lamp);background:var(--lamp-soft);border-radius:0 12px 12px 0;padding:12px 14px;margin-bottom:8px}
+.rec b{display:block}
+.rec p{margin:2px 0 8px;font-size:15px;color:var(--muted)}
+.rec button{border:0;background:var(--deep);color:var(--paper);border-radius:8px;padding:6px 12px;font-size:14px}
+/* chat */
+.msgs{display:flex;flex-direction:column;gap:10px}
+.m{max-width:88%;padding:11px 14px;border-radius:16px;white-space:pre-wrap;word-break:keep-all;overflow-wrap:anywhere}
+.m.u{align-self:flex-end;background:var(--celadon-soft);border-bottom-right-radius:4px}
+.m.a{align-self:flex-start;background:var(--surface);border:1px solid var(--line);border-bottom-left-radius:4px}
+.m.a.voice{font-family:var(--serif);font-size:18px}
+.m.sys{align-self:center;font-size:13px;color:var(--muted);background:transparent;padding:2px}
+.m.crisis{align-self:stretch;max-width:100%;background:var(--alert-soft);border:1px solid var(--alert);white-space:normal}
+.m.crisis a{color:var(--alert);font-weight:700}
+.src{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.src span{font-size:12px;border:1px solid var(--line);border-radius:999px;padding:1px 8px;color:var(--muted);background:var(--paper)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0}
+.chips button{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 12px;font-size:14px}
+.composer{display:flex;gap:8px;padding:12px;border-top:1px solid var(--line);background:var(--surface)}
+.composer input{flex:1;min-width:0;border:1px solid var(--line);border-radius:12px;padding:12px;background:var(--paper)}
+.composer button{border:0;border-radius:12px;padding:0 14px;background:var(--deep);color:var(--paper);font-weight:600}
+.composer .mic{background:var(--lamp);color:#2a2008}
+.back{border:0;background:none;color:var(--muted);padding:0;font-size:15px;margin-bottom:8px}
+.drop{display:block;cursor:pointer;border:2px dashed var(--line);border-radius:16px;padding:22px;text-align:center;color:var(--muted);margin-bottom:10px}
+.drop img{max-width:100%;border-radius:10px;margin-top:10px}
+/* right side */
+.side{min-width:0}
+.tabs{display:flex;gap:6px;margin-bottom:16px}
+.tabs button{border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:8px 16px;font-size:15px}
+.tabs button[aria-selected="true"]{background:var(--deep);color:var(--paper);border-color:var(--deep)}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:24px}
+.panel h2{font-family:var(--serif);font-size:26px;margin:0 0 4px;font-weight:700}
+.panel .lead{color:var(--muted);margin:0 0 18px;font-size:15px}
+.gauge{display:grid;grid-template-columns:auto 1fr;gap:22px;align-items:center;margin-bottom:18px;padding:18px;border-radius:16px;background:var(--paper)}
+.gauge .num{font-family:var(--serif);font-size:64px;line-height:1;font-weight:700}
+.gauge .stage{font-weight:700}
+.bar{height:12px;border-radius:6px;background:linear-gradient(90deg,var(--celadon) 0 40%,var(--lamp) 40% 60%,#E58B4A 60% 80%,var(--alert) 80% 100%);position:relative;margin:10px 0 4px}
+.bar i{position:absolute;top:-6px;width:4px;height:24px;background:var(--ink);border-radius:2px;transition:left .8s ease}
+.scale{display:flex;justify-content:space-between;font-size:12px;color:var(--muted)}
+table{width:100%;border-collapse:collapse;font-size:15px}
+th,td{text-align:left;padding:10px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+th{color:var(--muted);font-weight:500;font-size:13px}
+tr.me{background:var(--lamp-soft)}
+.pill{display:inline-block;border-radius:999px;padding:1px 10px;font-size:13px;font-weight:600}
+.s0{background:var(--celadon-soft);color:var(--celadon)} .s1{background:var(--lamp-soft);color:#8a5d00} .s2{background:#FCE3D0;color:#9a4a12} .s3{background:var(--alert-soft);color:var(--alert)}
+.tablewrap{overflow-x:auto}
+.note{background:var(--paper);border-radius:14px;padding:16px;margin-top:16px;white-space:pre-wrap;font-size:15px}
+.ev{font-family:var(--serif);color:var(--deep)}
+.btn{border:1px solid var(--deep);background:var(--deep);color:var(--paper);border-radius:10px;padding:9px 16px;font-size:15px}
+.btn.ghost{background:transparent;color:var(--deep)}
+.row{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0}
+.spark{display:flex;align-items:flex-end;gap:6px;height:90px;margin:8px 0 2px}
+.spark div{flex:1;border-radius:6px 6px 0 0;background:var(--celadon);min-height:4px;transition:height .6s}
+.spark div.hi{background:var(--alert)} .spark div.mid{background:var(--lamp)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.kpi{background:var(--paper);border-radius:14px;padding:14px}
+.kpi b{font-family:var(--serif);font-size:28px;display:block}
+.kpi span{color:var(--muted);font-size:14px}
+.demo{margin-top:16px;border:1px dashed var(--line);border-radius:14px;padding:14px;font-size:14px;color:var(--muted)}
+.hidden{display:none!important}
+@media (max-width:900px){
+  .seg{display:flex}
+  .wrap{grid-template-columns:1fr;padding:14px}
+  .phone{height:calc(100vh - 170px);min-height:560px;position:static}
+  .tabs{display:none}
+  .top{padding:14px 16px}.brand span{display:none}
+  [data-view="user"] .side{display:none}
+  [data-view="worker"] .phone,[data-view="family"] .phone{display:none}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body data-view="user">
+<header class="top">
+  <div class="brand"><b>곁</b><span>돌봄이 아니라 쓸모로 먼저 다가가는 1인가구 AI 생활동반자</span></div>
+</header>
+<nav class="seg" role="tablist" aria-label="화면 전환">
+  <button role="tab" aria-selected="true" data-v="user">사용자</button>
+  <button role="tab" aria-selected="false" data-v="worker">담당자 콘솔</button>
+  <button role="tab" aria-selected="false" data-v="family">가족 리포트</button>
+</nav>
+<main class="wrap">
+  <section class="phone" aria-label="사용자 앱">
+    <div class="ph-head">
+      <div><h2 id="phTitle">박정수 님의 곁</h2><small id="phSub">58세 · 1인가구 (가상 인물)</small></div>
+      <div class="lampchip" title="곁지수"><span class="lampdot" id="lampdot"></span><span id="miniScore">38</span></div>
+    </div>
+    <div class="ph-body" id="phBody"></div>
+    <form class="composer hidden" id="composer">
+      <button type="button" class="mic" id="micBtn" aria-label="말로 하기">🎙</button>
+      <input id="inp" autocomplete="off" placeholder="편하게 말씀하세요">
+      <button type="submit">보내기</button>
+    </form>
+  </section>
+  <section class="side">
+    <div class="tabs" role="tablist">
+      <button role="tab" aria-selected="true" data-t="worker">담당자 콘솔</button>
+      <button role="tab" aria-selected="false" data-t="family">가족 리포트</button>
+    </div>
+    <div id="sidePanel"></div>
+  </section>
+</main>
+<script>
+/* ---------- data ---------- */
+const BENEFITS=[
+ {id:"b1",name:"국민취업지원제도",org:"고용노동부",fit:"구직 중인 저소득층·중장년",what:"취업 상담, 직업훈련, 일정 요건 충족 시 구직촉진수당",how:"고용24 온라인 또는 가까운 고용센터 방문 신청",tags:["실직","구직","재취업","실업급여"]},
+ {id:"b2",name:"중장년내일센터 전직·재취업 지원",org:"노사발전재단",fit:"40세 이상 퇴직(예정) 중장년",what:"1:1 전직 상담, 재취업 교육, 일자리 알선",how:"지역 센터 전화 또는 방문 상담 예약",tags:["퇴직","재취업","중장년","상담"]},
+ {id:"b3",name:"에너지바우처",org:"산업통상자원부",fit:"기초생활수급 등 에너지 취약 가구",what:"난방·냉방비 일부 지원",how:"주민센터 방문 또는 복지로 신청",tags:["난방","전기요금","가스비"]},
+ {id:"b4",name:"긴급복지지원",org:"보건복지부",fit:"갑작스러운 실직·질병 등으로 생계가 어려워진 가구",what:"생계비·의료비·주거비 등 단기 지원",how:"보건복지상담센터(129) 또는 주민센터",tags:["위기","생계","갑자기","실직","돈"]},
+ {id:"b5",name:"건강보험료 경감·분할납부 상담",org:"국민건강보험공단",fit:"소득 감소 등으로 보험료 부담이 커진 지역가입자",what:"요건에 따른 경감 또는 분할납부 안내",how:"공단 고객센터(1577-1000) 또는 지사 방문",tags:["건강보험","보험료","고지서"]},
+ {id:"b6",name:"주거급여",org:"국토교통부",fit:"소득·재산 기준을 충족하는 임차 가구",what:"임차료 일부 지원",how:"주민센터 방문 또는 복지로 신청",tags:["월세","주거","집"]},
+ {id:"b7",name:"평생교육·디지털 배움 프로그램",org:"지자체 평생학습관",fit:"지역 주민",what:"컴퓨터·자격증·취미 강좌",how:"구청 평생학습 홈페이지 또는 전화",tags:["배움","자격증","교육"]},
+ {id:"b8",name:"중장년 사회관계망 지원(자조모임)",org:"지자체·복지관",fit:"사회적 고립 위험이 있는 중장년",what:"모임·취미 활동·동료 지원",how:"주민센터 복지 담당 또는 지역 복지관",tags:["외로움","모임","친구"]}
+];
+const PROGRAMS=[
+ {name:"한강 낚시 모임 (중장년)",where:"구 복지관 · 토요일 오전",why:"낚시 이야기를 하셨죠. 처음엔 구경만 해도 돼요."},
+ {name:"50+ 재취업 준비반",where:"중장년내일센터 · 화·목 저녁",why:"경력 정리와 이력서, 같은 처지 동료를 만날 수 있어요."},
+ {name:"아침 걷기 동아리",where:"동네 공원 · 매일 7시",why:"수면 리듬 회복에 도움이 돼요."}
+];
+const OTHERS=[
+ {name:"김○○ (71)",score:72,trend:"+6",note:"3일째 체크인 무응답"},
+ {name:"이○○ (63)",score:55,trend:"+3",note:"식사 거름 반복"},
+ {name:"최○○ (49)",score:41,trend:"-2",note:"재취업 상담 연결 완료"},
+ {name:"정○○ (66)",score:28,trend:"-5",note:"바둑 모임 주 1회 참여"}
+];
+const CRISIS=/(죽고\s*싶|죽어버|자살|사라지고\s*싶|끝내고\s*싶|살\s*이유|목숨|유서)/;
+/* ---------- state ---------- */
+const S={screen:"home",chat:[],log:[],history:[
+  {day:"월",people:1,avoid:false,meals:1,late:false,out:true,lonely:1,hope:0,stress:["unemployment"],ev:"실업급여가 이번 달로 끝났어요",resp:1},
+  {day:"화",people:0,avoid:false,meals:1,late:true,out:true,lonely:2,hope:0,stress:["financial"],ev:"요즘 잠이 늦게 와요",resp:1}],
+  ckStep:0,ckAns:[],summary:"",joined:[],fam:{shared:true}};
+let sample=null;
+/* ---------- scoring ---------- */
+function dayScore(d){
+  let s=0;
+  s+= d.people===0?20:d.people===1?10:0; s+= d.avoid?5:0;           // social 25
+  s+= Math.min(d.meals,2)*5 + (d.late?5:0) + (d.out?0:5);           // routine 20
+  s+= (d.lonely/3)*15 + (d.hope/3)*10;                               // affect 25
+  s+= Math.min(d.stress.length,3)*5;                                 // stress 15
+  s+= d.resp?0:15;                                                   // engagement 15
+  return Math.max(0,Math.min(100,s));
+}
+function score(){const h=S.history.slice(-7);if(!h.length)return 0;return Math.round(h.reduce((a,d)=>a+dayScore(d),0)/h.length);}
+let BASE=null;
+function stage(v){return v>=80?["위기","s3"]:v>=60?["주의","s2"]:v>=40?["관심","s1"]:["안정","s0"];}
+/* ---------- helpers ---------- */
+const $=s=>document.querySelector(s);
+const esc=t=>String(t).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function save(){try{localStorage.setItem("gyeot",JSON.stringify({history:S.history,joined:S.joined}))}catch(e){}}
+function load(){try{const x=JSON.parse(localStorage.getItem("gyeot")||"null");if(x&&x.history){S.history=x.history;S.joined=x.joined||[]}}catch(e){}}
+function speak(t){try{if(!window.speechSynthesis)return;const u=new SpeechSynthesisUtterance(t.slice(0,160));u.lang="ko-KR";u.rate=.95;speechSynthesis.cancel();speechSynthesis.speak(u)}catch(e){}}
+/* ---------- user screens ---------- */
+function renderPhone(){
+  const v=score(),[st]=stage(v);
+  $("#miniScore").textContent=v; $("#lampdot").style.background=v>=60?"var(--alert)":v>=40?"var(--lamp)":"var(--celadon)";
+  const b=$("#phBody"), comp=$("#composer");
+  if(S.screen==="home"){
+    comp.classList.add("hidden");
+    const recs = v>=40 ? PROGRAMS.map((p,i)=>`<div class="rec"><b>${esc(p.name)}</b><p>${esc(p.where)}<br>${esc(p.why)}</p>${S.joined.includes(i)?'<span class="pill s0">참여 예정</span>':`<button data-join="${i}">가볼게요</button>`}</div>`).join(""):
+      `<p style="color:var(--muted);font-size:15px">대화를 나누다 보면 정수 님께 맞는 동네 모임을 찾아드려요.</p>`;
+    b.innerHTML=`<p class="greet">정수 님, 오늘은<br>무엇을 같이 해결해 볼까요?</p>
+      <button class="action primary" data-go="benefit"><strong>받을 수 있는 혜택 찾기</strong><span>말로 물어보시면 지원금·일자리를 찾아드려요</span></button>
+      <button class="action" data-go="photo"><strong>사진으로 물어보기</strong><span>고지서·안내문을 쉬운 말로 풀어드려요</span></button>
+      <button class="action" data-go="checkin"><strong>오늘의 3분 대화</strong><span>식사는 하셨는지, 오늘 하루는 어떠셨는지</span></button>
+      <div class="recs"><h3>정수 님께 추천하는 모임</h3>${recs}</div>`;
+  } else if(S.screen==="benefit"||S.screen==="checkin"){
+    comp.classList.remove("hidden");
+    $("#inp").placeholder=S.screen==="benefit"?"예: 실업급여 끝났는데 받을 수 있는 게 있나요?":"편하게 답해 주세요";
+    const chips=S.screen==="benefit"&&S.chat.length<=1?`<div class="chips">${["실업급여가 끝났는데 받을 수 있는 게 있나요?","난방비가 부담돼요","다시 일하고 싶어요"].map(c=>`<button data-chip="${esc(c)}">${esc(c)}</button>`).join("")}</div>`:"";
+    b.innerHTML=`<button class="back" data-go="home">← 처음으로</button><div class="msgs">${S.chat.map(m=>msgHTML(m)).join("")}</div>${chips}`;
+    b.scrollTop=b.scrollHeight;
+  } else if(S.screen==="photo"){
+    comp.classList.add("hidden");
+    b.innerHTML=`<button class="back" data-go="home">← 처음으로</button>
+      <label class="drop" id="drop"><input type="file" accept="image/*" id="file" hidden>
+        <strong style="color:var(--ink);font-size:18px">안내문 사진 올리기</strong><br>카메라로 찍거나 사진을 골라 주세요</label>
+      <button class="action" id="sampleDoc"><strong>샘플 안내문으로 해보기</strong><span>건강보험료 납부 안내문 예시</span></button>
+      <div id="docOut" class="msgs"></div>`;
+  }
+}
+function msgHTML(m){
+  if(m.role==="crisis")return `<div class="m crisis"><b>정수 님, 지금 많이 힘드신 것 같아요.</b><br>혼자 견디지 않으셔도 됩니다. 지금 바로 전문 상담사와 이야기할 수 있어요.<br>☎ 자살예방상담전화 <a href="tel:109">109</a> (24시간)<br>☎ 정신건강위기상담 <a href="tel:15770199">1577-0199</a><br><span style="font-size:14px;color:var(--muted)">사전에 동의하신 담당자에게도 연락을 요청했어요.</span></div>`;
+  if(m.role==="sys")return `<div class="m sys">${esc(m.text)}</div>`;
+  const src=m.src&&m.src.length?`<div class="src">${m.src.map(s=>`<span>출처 · ${esc(s)}</span>`).join("")}</div>`:"";
+  return `<div class="m ${m.role==="user"?"u":"a"}${m.voice?" voice":""}">${esc(m.text)}${src}</div>`;
+}
+/* ---------- benefit agent ---------- */
+function matchBenefits(q){
+  const sc=BENEFITS.map(b=>({b,s:b.tags.reduce((a,t)=>a+(q.includes(t)?2:0),0)+(q.includes("일")&&b.tags.includes("재취업")?1:0)}));
+  const top=sc.filter(x=>x.s>0).sort((a,b)=>b.s-a.s).slice(0,3).map(x=>x.b);
+  for(const d of [BENEFITS[1],BENEFITS[3],BENEFITS[0]]){if(top.length>=3)break;if(!top.includes(d))top.push(d);}
+  return top;
+}
+async function benefitReply(q){
+  const cands=matchBenefits(q);
+  const msg={role:"assistant",text:"",src:cands.map(c=>c.org+" "+c.name)};
+  S.chat.push(msg);
+  if(sample){
+    msg.text="생각하는 중이에요…"; renderPhone();
+    const prompt=`너는 한국 1인가구 중장년을 돕는 생활비서 '곁'이다. 아래 [제도 자료]에 있는 내용만 근거로, 사용자 질문에 존댓말로 쉽고 따뜻하게 답하라.
+규칙: 1) 해당될 수 있는 제도 최대 3개를 "• 제도명: 왜 해당될 수 있는지 / 어떻게 신청" 형식으로. 2) 금액·자격을 단정하지 말고 마지막 줄에 "정확한 자격은 주민센터나 해당 기관에서 확인이 필요해요."를 쓴다. 3) 자료에 없는 내용은 지어내지 않는다. 4) 250자 이내, 마크다운 기호(**, #) 금지.
+[제도 자료]
+${cands.map(c=>`- ${c.name}(${c.org}) 대상:${c.fit} 내용:${c.what} 신청:${c.how}`).join("\n")}
+[최근 대화]
+${S.chat.filter(m=>m.role==="user").slice(-3).map(m=>m.text).join("\n")}
+[질문] ${q}`;
+    try{await sample(prompt,{modelTier:"quick",cache:false,onText:({text})=>{msg.text=text;renderPhone();}});}
+    catch(e){msg.text=e.text||scripted(cands);if(e.code==="not_granted")goOffline();}
+  } else msg.text=scripted(cands);
+  renderPhone(); speak(msg.text);
+  logEvent("혜택 상담: "+cands.map(c=>c.name).join(", "));
+}
+function scripted(c){return `정수 님 상황이면 이런 제도를 알아보실 만해요.\n\n${c.map(x=>`• ${x.name}: ${x.fit}께 ${x.what}을(를) 지원해요. ${x.how}.`).join("\n")}\n\n정확한 자격은 주민센터나 해당 기관에서 확인이 필요해요.`;}
+/* ---------- check-in agent ---------- */
+const CK=["정수 님, 오늘 끼니는 챙겨 드셨어요?","오늘 누구랑 이야기 나눈 적 있으세요? 전화나 가게에서 잠깐이라도요.","요즘 마음은 좀 어떠세요? 편하게 말씀해 주세요."];
+function startCheckin(){S.screen="checkin";S.chat=[{role:"assistant",text:"저녁 시간이네요. 3분만 이야기 나눠요.",voice:true},{role:"assistant",text:CK[0],voice:true}];S.ckStep=0;S.ckAns=[];renderPhone();speak(CK[0]);}
+async function checkinReply(t){
+  S.ckAns.push(t); S.ckStep++;
+  if(S.ckStep<CK.length){
+    const empath=t.length<4?"네, 알겠어요.":/안 |못|거르|걸렀|굶|없|아무|혼자|귀찮|쓸쓸|외롭|힘들/.test(t)?"그러셨군요. 말씀해 주셔서 고마워요.":"좋네요.";
+    S.chat.push({role:"assistant",text:empath+" "+CK[S.ckStep],voice:true}); renderPhone(); speak(CK[S.ckStep]); return;
+  }
+  S.chat.push({role:"sys",text:"대화에서 오늘의 생활 신호를 정리하는 중…"}); renderPhone();
+  const sig=await extractSignals(S.ckAns);
+  S.history.push(sig); save();
+  const v=score(),[st]=stage(v);
+  S.chat.pop();
+  S.chat.push({role:"assistant",text:v>=40?`오늘도 이야기 나눠 주셔서 고마워요. 요즘 혼자 보내는 시간이 좀 길어 보여요. 처음 화면에 부담 없는 동네 모임을 골라 뒀어요. 구경만 해 보셔도 좋아요.`:`오늘도 고마워요, 정수 님. 내일 이 시간에 또 이야기 나눠요.`,voice:true});
+  S.chat.push({role:"sys",text:`곁지수 ${v} · ${st} (담당자 콘솔에 반영됨)`});
+  logEvent(`체크인 완료 · 곁지수 ${v}`);
+  renderAll();
+}
+async function extractSignals(ans){
+  const day=["일","월","화","수","목","금","토"][new Date().getDay()];
+  if(sample){
+    try{
+      const j=await sample.json(`다음은 1인가구 사용자의 3문항 체크인 답변이다. 사회적 고립 신호를 추출해 JSON만 출력하라.
+Q1 식사: ${ans[0]}
+Q2 대화 상대: ${ans[1]}
+Q3 마음: ${ans[2]}
+스키마: {"people":정수(오늘 대화한 사람 수, 모르면 0),"avoid":불리언(연락·만남 회피 표현),"meals":정수(거른 끼니 수 0~3),"late":불리언(수면 늦음 언급),"out":불리언(외출 언급),"lonely":0~3,"hope":0~3(무망감 강도),"stress":["unemployment"|"financial"|"health"|"relationship"],"ev":"가장 중요한 근거 문장(사용자 원문 그대로 짧게)"}`,{modelTier:"quick",cache:false});
+      return {day,people:+j.people||0,avoid:!!j.avoid,meals:Math.min(3,+j.meals||0),late:!!j.late,out:!!j.out,lonely:Math.min(3,+j.lonely||0),hope:Math.min(3,+j.hope||0),stress:Array.isArray(j.stress)?j.stress:[],ev:String(j.ev||ans[2]).slice(0,60),resp:1};
+    }catch(e){if(e.code==="not_granted")goOffline();}
+  }
+  const all=ans.join(" ");
+  return {day,people:/아무|없|안 했|혼자/.test(ans[1])?0:1,avoid:/귀찮|싫|안 만나|피하/.test(all),meals:/안 먹|거르|걸렀|굶|못 먹|건너/.test(ans[0])?2:0,late:/잠|새벽|늦/.test(all),out:/나갔|산책|외출|다녀/.test(all),
+    lonely:/외롭|쓸쓸|혼자/.test(all)?2:/그냥|별로/.test(all)?1:0,hope:/다 귀찮|의미 없|필요 없|지쳤/.test(all)?2:0,stress:/돈|일자리|실직|일 없/.test(all)?["financial"]:[],ev:ans[2].slice(0,60),resp:1};
+}
+/* ---------- document agent ---------- */
+async function readDoc(file){
+  const out=$("#docOut");
+  const msg={role:"assistant",text:"안내문을 읽는 중이에요…",src:["업로드한 사진"]};
+  const r=()=>out.innerHTML=msgHTML(msg);
+  if(file){ $("#drop").insertAdjacentHTML("beforeend",`<img alt="올린 안내문" src="${URL.createObjectURL(file)}">`); }
+  r();
+  const caps=sample?await sample.limits().catch(()=>null):null;
+  if(file&&sample&&caps&&caps.images){
+    try{await sample("첨부 이미지는 한국 공공기관 안내문·고지서 사진이다. 중장년 1인가구 사용자에게 존댓말로 아래 형식으로만 답하라(마크다운 금지, 200자 이내).\n무슨 내용: 한 줄\n언제까지: 기한(없으면 '기한 없음')\n할 일: 한두 줄\n도움 될 제도: 감면·분할납부 등 확인해 볼 만한 것 한 줄(단정 금지)",{images:file,modelTier:"default",cache:false,onText:({text})=>{msg.text=text;r();}});
+      logEvent("안내문 해석 (사진)"); return;}catch(e){if(e.code==="not_granted")goOffline();}
+  }
+  msg.src=["샘플 안내문"];
+  msg.text="무슨 내용: 이번 달 건강보험료 납부 안내예요.\n언제까지: 이달 말일까지 내시면 돼요.\n할 일: 자동이체가 아니면 은행·편의점·앱으로 납부하세요.\n도움 될 제도: 소득이 줄었다면 보험료 조정이나 분할납부가 가능한지 공단(1577-1000)에 확인해 보세요.";
+  r(); logEvent("안내문 해석 (샘플)");
+}
+/* ---------- worker / family panels ---------- */
+let tab="worker";
+function renderSide(){
+  const v=score(),[st,cls]=stage(v), el=$("#sidePanel");
+  if(tab==="worker"){
+    const rows=[{name:"박정수 (58)",score:v,trend:(v-BASE>=0?"+":"")+(v-BASE),note:S.history.at(-1).ev,me:1},...OTHERS].sort((a,b)=>b.score-a.score);
+    const last=S.history.at(-1);
+    el.innerHTML=`<div class="panel"><h2>오늘 먼저 연락할 분</h2><p class="lead">곁지수와 변화 속도 순으로 정렬됩니다. 대화 원문은 공유되지 않고 근거 문장만 보입니다.</p>
+    <div class="gauge"><div class="num">${v}</div><div><div><span class="stage">박정수 님 · </span><span class="pill ${cls}">${st}</span></div>
+      <div class="bar"><i style="left:calc(${v}% - 2px)"></i></div><div class="scale"><span>안정</span><span>관심 40</span><span>주의 60</span><span>위기 80</span></div></div></div>
+    <div class="tablewrap"><table><thead><tr><th>대상자</th><th>곁지수</th><th>변화</th><th>최근 근거</th></tr></thead><tbody>
+    ${rows.map(r=>{const[s2,c2]=stage(r.score);return `<tr class="${r.me?"me":""}"><td>${esc(r.name)}</td><td><span class="pill ${c2}">${r.score} ${s2}</span></td><td>${esc(String(r.trend))}</td><td class="${r.me?"ev":""}">${esc(r.note)}</td></tr>`}).join("")}
+    </tbody></table></div>
+    <h3 style="margin:20px 0 6px;font-size:17px">박정수 님 최근 7일 생활 신호</h3>
+    <div class="spark">${S.history.slice(-7).map(d=>{const x=dayScore(d);return `<div class="${x>=60?"hi":x>=40?"mid":""}" style="height:${Math.max(6,x)}%" title="${d.day} ${Math.round(x)}"></div>`}).join("")}</div>
+    <div class="scale">${S.history.slice(-7).map((d,i,a)=>`<span>${i===a.length-1?"오늘":(a.length-1-i)+"일 전"}</span>`).join("")}</div>
+    <div class="row"><button class="btn" id="sumBtn">AI 사례 요약 만들기</button><button class="btn ghost" id="ffBtn">데모: 일주일 빨리 감기</button><button class="btn ghost" id="resetBtn">처음 상태로</button></div>
+    <div class="note ${S.summary?"":"hidden"}" id="sumOut">${esc(S.summary)}</div>
+    <div class="demo">최근 기록 · ${S.log.slice(-4).reverse().map(esc).join(" / ")||"아직 없음"}</div></div>`;
+  } else {
+    const h=S.history.slice(-7), ck=h.filter(d=>d.resp).length, meals=h.filter(d=>d.meals===0).length, outs=h.filter(d=>d.out).length;
+    el.innerHTML=`<div class="panel"><h2>아버지의 한 주</h2><p class="lead">대화 내용은 보이지 않아요. 아버지가 공유를 허락한 항목만 요약해 보여 드려요.</p>
+    <div class="grid2"><div class="kpi"><b>${ck}회</b><span>이번 주 3분 대화</span></div><div class="kpi"><b>${meals}일</b><span>세 끼 챙기신 날</span></div>
+    <div class="kpi"><b>${outs}일</b><span>외출하신 날</span></div><div class="kpi"><b>${S.joined.length}곳</b><span>참여 예정 모임</span></div></div>
+    <div class="note">${v>=60?"이번 주는 혼자 계신 시간이 길었어요. 주말에 짧게 전화 한 통 드려 보시는 건 어떨까요?":v>=40?"생활 리듬이 조금 흐트러졌어요. 곁이 동네 모임을 추천해 드렸어요.":"이번 주는 규칙적으로 지내셨어요."}</div>
+    <p style="font-size:14px;color:var(--muted);margin-top:14px">곁패밀리 · 공유 범위는 아버지가 언제든 바꿀 수 있어요.</p></div>`;
+  }
+}
+async function makeSummary(){
+  const h=S.history.slice(-7), v=score(), [st]=stage(v);
+  const facts=h.map(d=>`${d.day}: 대화상대 ${d.people}명, 거른끼니 ${d.meals}, 외출 ${d.out?"예":"아니오"}, 외로움 ${d.lonely}/3, 무망감 ${d.hope}/3, 근거 "${d.ev}"`).join("\n");
+  S.summary="요약을 만드는 중…"; renderSide();
+  if(sample){
+    try{await sample(`너는 지자체 사회복지 담당자를 돕는 사례 요약기다. 아래 1인가구 대상자(박정수, 58세, 희망퇴직 후 원룸 거주)의 최근 7일 신호로 담당자용 사례 노트를 작성하라. 형식: "현재 상태" 2줄, "주요 근거" 근거 문장 2개 인용, "권장 개입" 2개(구체적 프로그램·연락 방식). 진단하지 말 것, 마크다운 금지, 300자 이내.\n곁지수 ${v}(${st})\n${facts}`,{modelTier:"quick",cache:false,onText:({text})=>{S.summary=text;$("#sumOut").textContent=text;$("#sumOut").classList.remove("hidden");}});renderSide();return;}
+    catch(e){if(e.code==="not_granted")goOffline();}
+  }
+  const worst=[...h].sort((a,b)=>dayScore(b)-dayScore(a));
+  S.summary=`현재 상태: 곁지수 ${v}(${st}). 최근 대인 접촉이 줄고 식사·수면 리듬이 흐트러지는 경향이 있습니다.\n주요 근거: "${worst[0].ev}" / "${(worst[1]||worst[0]).ev}"\n권장 개입: ① 이번 주 내 안부 전화로 재취업 의사 확인 후 중장년내일센터 연계 ② 관심사(낚시) 기반 복지관 중장년 모임 동행 제안`;
+  renderSide();
+}
+function fastForward(){
+  const days=["수","목","금","토","일"], ev=["그냥 누워만 있었어요","저녁은 건너뛰었어요","누구랑 말할 일이 없네요","다 귀찮네요","밤새 티비 봤어요"];
+  days.forEach((d,i)=>S.history.push({day:d,people:0,avoid:i>2,meals:i%2?2:1,late:true,out:false,lonely:i>1?3:2,hope:i===3?2:1,stress:["unemployment","financial"],ev:ev[i],resp:i!==4?1:0}));
+  S.summary=""; save(); logEvent("데모: 일주일 경과"); renderAll();
+}
+function join(i){
+  S.joined.push(i);
+  S.history.push({day:"모임",people:4,avoid:false,meals:0,late:false,out:true,lonely:0,hope:0,stress:["unemployment"],ev:"오랜만에 사람들이랑 얘기했어요",resp:1});
+  save(); logEvent("모임 참여: "+PROGRAMS[i].name); renderAll();
+}
+function logEvent(t){S.log.push(t);}
+function renderAll(){renderPhone();renderSide();}
+function goOffline(){sample=null;}
+/* ---------- events ---------- */
+document.addEventListener("click",e=>{
+  const t=e.target.closest("button,[data-go]"); if(!t)return;
+  if(t.dataset.go){const g=t.dataset.go; if(g==="checkin")return startCheckin(); S.screen=g; if(g==="benefit")S.chat=[{role:"assistant",text:"요즘 어떤 게 제일 걱정이세요? 말씀해 주시면 받을 수 있는 지원을 찾아볼게요."}]; renderPhone(); return;}
+  if(t.dataset.chip){send(t.dataset.chip);return;}
+  if(t.dataset.join){join(+t.dataset.join);return;}
+  if(t.dataset.v){document.body.dataset.view=t.dataset.v;document.querySelectorAll(".seg button").forEach(b=>b.setAttribute("aria-selected",b===t));if(t.dataset.v!=="user"){tab=t.dataset.v;renderSide();}return;}
+  if(t.dataset.t){tab=t.dataset.t;document.querySelectorAll(".tabs button").forEach(b=>b.setAttribute("aria-selected",b===t));renderSide();return;}
+  if(t.id==="sumBtn")makeSummary();
+  if(t.id==="ffBtn")fastForward();
+  if(t.id==="resetBtn"){try{localStorage.removeItem("gyeot")}catch(_){}location.reload();}
+  if(t.id==="sampleDoc")readDoc(null);
+});
+document.addEventListener("change",e=>{if(e.target.id==="file"&&e.target.files[0])readDoc(e.target.files[0]);});
+$("#composer").addEventListener("submit",e=>{e.preventDefault();const v=$("#inp").value.trim();if(v){$("#inp").value="";send(v);}});
+function send(text){
+  S.chat.push({role:"user",text});
+  if(CRISIS.test(text)){S.chat.push({role:"crisis"});S.history.push({day:"위기",people:0,avoid:true,meals:2,late:true,out:false,lonely:3,hope:3,stress:["relationship"],ev:text.slice(0,60),resp:1});save();logEvent("안전 프로토콜 실행");renderAll();return;}
+  renderPhone();
+  if(S.screen==="checkin")checkinReply(text); else benefitReply(text);
+}
+/* voice input */
+(function(){const SR=window.SpeechRecognition||window.webkitSpeechRecognition;const btn=$("#micBtn");if(!SR){btn.classList.add("hidden");return;}
+ const r=new SR();r.lang="ko-KR";r.interimResults=false;r.onresult=e=>{const t=e.results[0][0].transcript;if(t)send(t);};
+ btn.addEventListener("click",()=>{try{r.start();btn.textContent="…";r.onend=()=>btn.textContent="🎙";}catch(_){}});})();
+/* boot */
+load(); BASE=35; renderAll();
+</script>
+</body>
+</html>
